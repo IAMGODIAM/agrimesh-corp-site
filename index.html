@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AgriMesh Corporation — Offline-first farm sensing, under development</title>
+<meta name="description" content="AgriMesh Corporation is a Florida for-profit building an offline-first, self-healing field-sensor mesh with on-device farm intelligence — proposed and under development.">
+<link rel="stylesheet" href="styles.css">
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="wordmark" href="#top" aria-label="AgriMesh Corporation home">
+      <svg class="wordmark-mark" viewBox="0 0 32 32" aria-hidden="true">
+        <circle cx="16" cy="6" r="2.4"/><circle cx="6" cy="22" r="2.4"/><circle cx="26" cy="22" r="2.4"/><circle cx="16" cy="16" r="2"/>
+        <path d="M16 8.5 7.5 20.5M16 8.5l8.5 12M8 22h16M16 14v-5.5" stroke-width="1.2"/>
+      </svg>
+      <span class="wordmark-text">AgriMesh <span class="wordmark-sub">Corporation</span></span>
+    </a>
+    <nav class="site-nav" aria-label="Primary">
+      <a href="#build">What we build</a>
+      <a href="#sbir">SBIR status</a>
+      <a href="#company">Company</a>
+      <a href="#contact" class="nav-cta">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- HERO -->
+  <section class="hero" aria-label="Introduction">
+    <canvas id="mesh" class="hero-canvas" aria-hidden="true"></canvas>
+    <div class="wrap hero-inner">
+      <p class="eyebrow">A Florida for-profit corporation</p>
+      <h1>AgriMesh Corporation</h1>
+      <p class="lede">We are building offline-first farm sensing — a self-healing mesh of low-cost
+        field sensors with on-device intelligence, designed for the small farms and urban
+        growers that precision agriculture left behind.</p>
+      <p class="status-line"><span class="pulse" aria-hidden="true"></span> Proposed &amp; under development</p>
+      <div class="hero-actions">
+        <a class="btn btn-gold" href="#build">What we&rsquo;re building</a>
+        <a class="btn btn-ghost" href="#contact">Start the conversation</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHAT WE BUILD -->
+  <section id="build" class="section" aria-label="What we build">
+    <div class="wrap">
+      <p class="eyebrow">What we build</p>
+      <h2>Sensing the field can afford</h2>
+      <p class="section-lede">Three proposed capabilities, one system. Everything below is
+        <strong>proposed or under development</strong> — we describe where we are going, not
+        where we have arrived.</p>
+      <div class="cards">
+        <article class="card">
+          <div class="card-tag">Proposed</div>
+          <h3>Self-healing field mesh</h3>
+          <p>Low-cost sensor nodes that relay for one another. When a node drops, traffic
+            reroutes through its neighbors — the mesh heals itself instead of going dark.</p>
+        </article>
+        <article class="card">
+          <div class="card-tag">Under development</div>
+          <h3>Hyper-local sensor arrays</h3>
+          <p>Soil moisture, temperature, and microclimate sensing at the row level — built
+            to run for seasons on modest power, in the fields that can least afford downtime.</p>
+        </article>
+        <article class="card">
+          <div class="card-tag">Proposed</div>
+          <h3>On-device farm intelligence</h3>
+          <p>Readings interpreted where they are taken. The field does not need a data
+            center&rsquo;s permission to know itself — insight stays on the farm, with the farmer.</p>
+        </article>
+      </div>
+      <p class="story-link">The public story of this work — the vision, the field, the film — is told at
+        <a href="https://e5enclave.com/agrimesh/">e5enclave.com/agrimesh</a>.</p>
+    </div>
+  </section>
+
+  <!-- SBIR -->
+  <section id="sbir" class="section section-alt" aria-label="SBIR status">
+    <div class="wrap narrow">
+      <p class="eyebrow">SBIR status</p>
+      <h2>Federal research, honestly stated</h2>
+      <div class="fence-panel">
+        <p class="locked">The NSF invited our full SBIR proposal — no award decision has been made.</p>
+        <p class="fence-note">The Small Business Innovation Research effort is pursued by
+          AgriMesh Corporation. We publish our status exactly as it stands: invited to propose,
+          awaiting a decision. Nothing more is claimed.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMPANY -->
+  <section id="company" class="section" aria-label="The company">
+    <div class="wrap narrow">
+      <p class="eyebrow">The company</p>
+      <h2>A Florida for-profit, plainly</h2>
+      <p>AgriMesh Corporation is a Florida for-profit corporation. We exist to build the
+        sensing layer small agriculture was never offered — and to do it as a business that
+        answers to the people who work the land.</p>
+      <p>The company&rsquo;s public story — the flagship film, the living-field twin, the vision
+        in full — is told by E5 Enclave Inc. at
+        <a href="https://e5enclave.com/agrimesh/">e5enclave.com/agrimesh</a>.</p>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact" class="section section-alt" aria-label="Contact">
+    <div class="wrap narrow">
+      <p class="eyebrow">Contact</p>
+      <h2>Start the conversation</h2>
+      <p class="section-lede">Growers, partners, funders, and the curious — write to us. We read everything.</p>
+      <form id="contact-form" class="contact-form" novalidate>
+        <div class="field">
+          <label for="f-name">Name</label>
+          <input id="f-name" name="name" type="text" autocomplete="name" required maxlength="200">
+        </div>
+        <div class="field">
+          <label for="f-email">Email</label>
+          <input id="f-email" name="email" type="email" autocomplete="email" required maxlength="320">
+        </div>
+        <div class="field">
+          <label for="f-org">Organization <span class="opt">(optional)</span></label>
+          <input id="f-org" name="organization" type="text" autocomplete="organization" maxlength="200">
+        </div>
+        <div class="field">
+          <label for="f-msg">Message</label>
+          <textarea id="f-msg" name="message" rows="5" required maxlength="5000"></textarea>
+        </div>
+        <!-- Honeypot: humans never see this. -->
+        <div class="field hp" aria-hidden="true">
+          <label for="f-website">Website</label>
+          <input id="f-website" name="website" type="text" tabindex="-1" autocomplete="off">
+        </div>
+        <div class="cf-turnstile" data-sitekey="0x4AAAAAAExGnuJoDnOTHE-M" data-theme="dark"></div>
+        <button class="btn btn-gold" type="submit" id="submit-btn">Start the conversation</button>
+        <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
+      </form>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-inner">
+    <p class="fence">Everything on this page describes <strong>proposed or in-development</strong> work.
+      No deployed systems, live data, or performance claims are shown or implied. Visualizations are
+      illustrative. The NSF invited our full SBIR proposal — no award decision has been made.</p>
+    <p class="copy">&copy; 2026 AgriMesh Corporation. A Florida for-profit corporation.</p>
+  </div>
+</footer>
+
+<script src="app.js" defer></script>
+</body>
+</html>
