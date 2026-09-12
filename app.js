@@ -147,6 +147,34 @@
     })();
   }
 
+  /* ---------- Cinematic glass header ---------- */
+  var header = document.getElementById('siteHeader');
+  var navToggle = header ? header.querySelector('.nav-toggle') : null;
+  if (header) {
+    var onScrollHeader = function () {
+      header.classList.toggle('scrolled', window.scrollY > 48);
+    };
+    window.addEventListener('scroll', onScrollHeader, { passive: true });
+    onScrollHeader();
+  }
+  if (header && navToggle) {
+    var setNavOpen = function (open) {
+      header.classList.toggle('nav-open', open);
+      navToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      navToggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    };
+    navToggle.addEventListener('click', function () {
+      setNavOpen(!header.classList.contains('nav-open'));
+    });
+    var navLinks = header.querySelectorAll('.site-nav a');
+    for (var ni = 0; ni < navLinks.length; ni++) {
+      navLinks[ni].addEventListener('click', function () { setNavOpen(false); });
+    }
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') setNavOpen(false);
+    });
+  }
+
   /* ---------- Contact form ---------- */
   var form = document.getElementById('contact-form');
   var status = document.getElementById('form-status');
