@@ -138,14 +138,21 @@
       <p class="eyebrow">Contact</p>
       <h2>Start the conversation</h2>
       <p class="section-lede">Growers, partners, funders, and the curious — write to us. We read everything.</p>
+      <div class="data-stat">
+        <p class="data-stat-number">0</p>
+        <p class="data-stat-label">third parties in your data path</p>
+        <p class="data-stat-sub">Every message lands on infrastructure we own. No form vendor, no data broker, ever.</p>
+      </div>
       <form id="contact-form" class="contact-form" novalidate>
         <div class="field">
           <label for="f-name">Name</label>
           <input id="f-name" name="name" type="text" autocomplete="name" required maxlength="200">
+          <p class="field-err" id="err-name"></p>
         </div>
         <div class="field">
           <label for="f-email">Email</label>
           <input id="f-email" name="email" type="email" autocomplete="email" required maxlength="320">
+          <p class="field-err" id="err-email"></p>
         </div>
         <div class="field">
           <label for="f-org">Organization <span class="opt">(optional)</span></label>
@@ -154,6 +161,7 @@
         <div class="field">
           <label for="f-msg">Message</label>
           <textarea id="f-msg" name="message" rows="5" required maxlength="5000"></textarea>
+          <p class="field-err" id="err-msg"></p>
         </div>
         <!-- Honeypot: humans never see this. -->
         <div class="field hp" aria-hidden="true">
@@ -161,7 +169,24 @@
           <input id="f-website" name="website" type="text" tabindex="-1" autocomplete="off">
         </div>
         <div class="cf-turnstile" data-sitekey="0x4AAAAAAExGnuJoDnOTHE-M" data-theme="dark"></div>
+        <div class="form-progress" aria-hidden="true"><span></span></div>
         <button class="btn btn-gold" type="submit" id="submit-btn">START THE CONVERSATION</button>
+        <div class="form-success" id="form-success" hidden>
+          <svg class="form-success-mark" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="11" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M7.5 12.5l3.2 3.2L16.5 9.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <h3>Message received.</h3>
+          <p>Thank you — your message is on its way. We read everything.</p>
+        </div>
+        <div class="attach-step" id="attach-step" hidden>
+          <h3>Add files <span class="opt">(optional)</span></h3>
+          <p class="attach-note">Up to 3 files, 10&nbsp;MB each — images, PDF, Word, text.</p>
+          <input id="file-input" class="attach-input" type="file" multiple
+                 accept="image/*,application/pdf,.doc,.docx,.txt,.md,.rtf">
+          <label class="attach-label" for="file-input">Choose files</label>
+          <ul class="attach-list" id="attach-list"></ul>
+        </div>
         <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
       </form>
     </div>
