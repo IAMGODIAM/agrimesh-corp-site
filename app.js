@@ -175,11 +175,28 @@
     });
   }
 
-  /* ---------- Contact form ---------- */
+  /* ---------- Contact form: cinematic reference (v2) ----------
+     Choreography: idle -> sending (honest progress while the real request is in
+     flight) -> success. Attachments are deferred until after a successful
+     submit and upload one file per request to the /upload contract:
+       POST https://agrimesh-intake.e5enclave.com/upload
+       multipart/form-data: submission_id (the `id` from /submit) + file
+       -> {ok:true, attachmentId} | {ok:false, error}
+     Errors always surface through the single polite live region (#form-status).
+     No auto-upload before submit. */
   var form = document.getElementById('contact-form');
   var status = document.getElementById('form-status');
   var btn = document.getElementById('submit-btn');
+  var successBox = document.getElementById('form-success');
+  var attachStep = document.getElementById('attach-step');
+  var fileInput = document.getElementById('file-input');
+  var attachList = document.getElementById('attach-list');
   var ENDPOINT = 'https://agrimesh-intake.e5enclave.com/submit';
+  var UPLOAD_ENDPOINT = 'https://agrimesh-intake.e5enclave.com/upload';
+  var MAX_FILES = 3;
+  var MAX_BYTES = 10 * 1024 * 1024;
+  var submissionId = '';
+  var attachedCount = 0;
 
   function setStatus(msg, cls) {
     status.textContent = msg;
@@ -188,19 +205,59 @@
 
   if (!form) return;
 
+  /* Kind inline messages on blur; live-cleared as the user types. */
+  function blurValidator(inputId, errId, test, msg) {
+    var input = document.getElementById(inputId);
+    var err = document.getElementById(errId);
+    function run() {
+      var bad = !test(input.value.trim());
+      err.textContent = bad ? msg : '';
+      if (bad) { input.setAttribute('aria-invalid', 'true'); }
+      else { input.removeAttribute('aria-invalid'); }
+      return !bad;
+    }
+    input.addEventListener('blur', run);
+    input.addEventListener('input', function () { if (err.textContent) run(); });
+    return run;
+  }
+  var emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  var checkName = blurValidator('f-name', 'err-name',
+    function (v) { return v.length > 0; }, 'Please tell us your name.');
+  var checkEmail = blurValidator('f-email', 'err-email',
+    function (v) { return emailRe.test(v); }, 'Please enter a valid email address.');
+  var checkMsg = blurValidator('f-msg', 'err-msg',
+    function (v) { return v.length > 0; }, 'Please include a message.');
+
+  function showSent(id) {
+    form.classList.add('is-sent');
+    successBox.hidden = false;
+    if (id) {
+      submissionId = id;
+      attachStep.hidden = false;
+    }
+    /* If the backend did not return an id, the message still went through;
+       the attachment step simply stays out of the way. */
+    setStatus('Thank you — your message is on its way. We read everything.', 'ok');
+    form.reset();
+    try { if (window.turnstile) window.turnstile.reset(); } catch (e) {}
+  }
+
+  function sendFailed() {
+    setStatus('Something didn\u2019t go through — please try again in a moment.', 'err');
+  }
+
   form.addEventListener('submit', function (ev) {
     ev.preventDefault();
     setStatus('', '');
+
+    var valid = [checkName(), checkEmail(), checkMsg()].every(function (v) { return v; });
+    if (!valid) { setStatus('Please fix the highlighted fields, then try again.', 'err'); return; }
 
     var name = document.getElementById('f-name').value.trim();
     var email = document.getElementById('f-email').value.trim();
     var org = document.getElementById('f-org').value.trim();
     var message = document.getElementById('f-msg').value.trim();
     var hp = document.getElementById('f-website').value;
-
-    if (!name) { setStatus('Please tell us your name.', 'err'); return; }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { setStatus('Please enter a valid email address.', 'err'); return; }
-    if (!message) { setStatus('Please include a message.', 'err'); return; }
 
     var token = '';
     try {
@@ -209,6 +266,7 @@
     if (!token) { setStatus('Verification is still loading — please wait a moment and try again.', 'err'); return; }
 
     btn.disabled = true;
+    form.classList.add('is-sending');
     setStatus('Sending…', '');
 
     fetch(ENDPOINT, {
@@ -222,16 +280,101 @@
       .then(function (r) { return r.json().catch(function () { return { ok: false }; }); })
       .then(function (data) {
         if (data && data.ok) {
-          setStatus('Thank you — your message is on its way. We read everything.', 'ok');
-          form.reset();
-          try { if (window.turnstile) window.turnstile.reset(); } catch (e) {}
+          showSent(data.id || data.submission_id || '');
         } else {
-          setStatus('Something didn\u2019t go through — please try again in a moment.', 'err');
+          sendFailed();
         }
       })
-      .catch(function () {
-        setStatus('Something didn\u2019t go through — please try again in a moment.', 'err');
-      })
-      .then(function () { btn.disabled = false; });
+      .catch(sendFailed)
+      .then(function () {
+        btn.disabled = false;
+        form.classList.remove('is-sending');
+      });
   });
+
+  /* ---------- Deferred attachments (post-submit only) ---------- */
+  function inFlightCount() {
+    return attachList.querySelectorAll('.attach-row[data-state="uploading"]').length;
+  }
+
+  function attachFailed(li, file, pct) {
+    li.setAttribute('data-state', 'err');
+    pct.textContent = 'Failed';
+    setStatus('\u201c' + file.name + '\u201d couldn\u2019t be attached — please try again.', 'err');
+  }
+
+  function uploadFile(file) {
+    var li = document.createElement('li');
+    li.className = 'attach-row';
+    li.setAttribute('data-state', 'uploading');
+    var nameEl = document.createElement('span');
+    nameEl.className = 'attach-name';
+    nameEl.textContent = file.name + ' (' + Math.max(1, Math.round(file.size / 1024)) + ' KB)';
+    var pctEl = document.createElement('span');
+    pctEl.className = 'attach-pct';
+    pctEl.textContent = '0%';
+    var bar = document.createElement('span');
+    bar.className = 'attach-bar';
+    var barFill = document.createElement('span');
+    bar.appendChild(barFill);
+    li.appendChild(nameEl);
+    li.appendChild(pctEl);
+    li.appendChild(bar);
+    attachList.appendChild(li);
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', UPLOAD_ENDPOINT);
+    xhr.upload.addEventListener('progress', function (e) {
+      if (e.lengthComputable) {
+        var p = Math.min(100, Math.round(e.loaded / e.total * 100));
+        barFill.style.width = p + '%';
+        pctEl.textContent = p + '%';
+      }
+    });
+    xhr.addEventListener('load', function () {
+      var ok = false;
+      try { ok = !!(JSON.parse(xhr.responseText) || {}).ok; } catch (e) {}
+      if (xhr.status >= 200 && xhr.status < 300 && ok) {
+        li.setAttribute('data-state', 'done');
+        pctEl.textContent = 'Attached';
+        attachedCount++;
+        setStatus('\u201c' + file.name + '\u201d attached.', 'ok');
+      } else {
+        attachFailed(li, file, pctEl);
+      }
+    });
+    xhr.addEventListener('error', function () { attachFailed(li, file, pctEl); });
+    xhr.addEventListener('abort', function () { attachFailed(li, file, pctEl); });
+
+    var fd = new FormData();
+    fd.append('submission_id', submissionId);
+    fd.append('file', file);
+    xhr.send(fd);
+  }
+
+  if (fileInput) {
+    fileInput.addEventListener('change', function () {
+      if (!submissionId) {
+        setStatus('Your message went through, but attachments aren\u2019t available for it right now.', 'err');
+        fileInput.value = '';
+        return;
+      }
+      var files = Array.prototype.slice.call(fileInput.files || []);
+      fileInput.value = '';
+      if (!files.length) return;
+      var allowed = MAX_FILES - attachedCount - inFlightCount();
+      if (files.length > allowed) {
+        setStatus('Up to 3 files can be attached — keeping the first ' +
+          (allowed > 0 ? allowed : 'none') + ' of your selection.', 'err');
+        files = files.slice(0, Math.max(0, allowed));
+      }
+      files.forEach(function (file) {
+        if (file.size > MAX_BYTES) {
+          setStatus('\u201c' + file.name + '\u201d is over 10 MB — please choose a smaller file.', 'err');
+          return;
+        }
+        uploadFile(file);
+      });
+    });
+  }
 })();
